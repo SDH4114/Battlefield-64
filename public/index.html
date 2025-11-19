@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Battlefield 64</title>
+  <link rel="stylesheet" href="./src/css/style.css" />
+</head>
+<body>
+  <div class="page">
+    <header class="top-bar">
+      <div class="logo">Battlefield 64</div>
+      <div class="controls">
+        <button id="new-game">New Game</button>
+      </div>
+    </header>
+
+    <main class="main-layout">
+      <div id="board">
+        <div id="board-top" class="coords-row"></div>
+
+        <div id="board-middle">
+          <div id="board-left" class="coords-col"></div>
+          <div id="board-grid"></div>
+          <div id="board-right" class="coords-col"></div>
+        </div>
+
+        <div id="board-bottom" class="coords-row"></div>
+      </div>
+
+      <aside class="sidebar">
+        <h2>Info</h2>
+        <p><strong>Current turn:</strong> <span id="current-turn">pink</span></p>
+
+        <h3>Moves</h3>
+        <ol id="moves-log"></ol>
+      </aside>
+    </main>
+  </div>
+
+  <script src="./src/js/main.js" defer></script>
+</body>
+</html>
