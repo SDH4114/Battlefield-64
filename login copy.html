@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="us">
+<head>
+  <meta charset="UTF-8" />
+  <title>Tricksters Land - Login</title>
+  <link rel="icon" type="image/png" href="img/triksterslandLogo.png" />
+  <link rel="shortcut icon" href="img/triksterslandLogo.png" type="image/png"/>
+    <!-- iOS home screen icon + web app meta -->
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="apple-touch-icon" href="/img/triksterslandLogo.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Tricksters Land">
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Tricksters Land - Free Messenger & Private Chat</title>
+  <meta name="description" content="Tricksters Land is a fast, secure messenger with free group chat, private chat, video and photo sharing, push notifications, and cross-device sync.">
+
+  <style>
+    /* Password toggle (Login page) */
+    .password-field{ position: relative; }
+    .password-field input{ padding-right: 48px; }
+
+    /* Keep it as a small button (NOT icon-only here) */
+    .toggle-pwd{
+      position: absolute;
+      top: calc(50%);
+      transform: translateY(-50%);
+      right: 12px;
+      width: 28px;
+      height: 28px;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 6px;
+      cursor: pointer;
+      /* If there was a color here, replace #ff8c00 with #00FF66 */
+    }
+    .toggle-pwd img{
+      width: 18px;
+      height: 18px;
+      display: block;
+      pointer-events: none;
+    }
+    .error {
+      color: red;
+      margin-top: 10px;
+      font-size: 14px;
+    }
+  </style>
+
+</head>
+  <link rel="stylesheet" href="css/mainStyle.css" />
+</head>
+<body>
+
+  <div class="login-container">
+    <h2>Log In</h2>
+    <form id="loginForm">
+      <input type="hidden" id="nick" />
+      <input type="text" id="id" placeholder="ID" pattern="[A-Z]{2}\d{4}" title="ID must be in the format AA0000" required style="color:#00FF66;" />
+      <div class="password-field">
+        <input type="password" id="password" placeholder="Password" required style="color:#00FF66;" />
+        <button type="button" id="togglePwd" class="toggle-pwd" style="top: calc(50% - 7px);" aria-label="Show password" title="Show password">
+          <img id="togglePwdIcon" src="img/view.png" alt="" />
+        </button>
+      </div>
+      <button type="submit" style="background: #00FF66; border-color: #00FF66; color:#000;">Log In</button>
+      <div class="error" id="error"></div>
+    </form>
+    <div class="guest-link" style="text-align: center;">
+      <a href="reg.html" class="link-underline">Register</a>
+    </div>
+    <!-- <div class="guest-link" style="margin-top: 12px; text-align: center;">
+      <a href="guest.html" class="link-underline">Continue as guest</a>
+    </div> -->
+  </div>
+
+  <script>
+    // Password visibility toggle
+    (function(){
+      const pwdInput = document.getElementById('password');
+      const toggleBtn = document.getElementById('togglePwd');
+      const iconEl = document.getElementById('togglePwdIcon');
+      if (pwdInput && toggleBtn) {
+        toggleBtn.addEventListener('click', () => {
+          const isPwd = pwdInput.type === 'password';
+          pwdInput.type = isPwd ? 'text' : 'password';
+          toggleBtn.setAttribute('aria-label', isPwd ? 'Hide password' : 'Show password');
+          toggleBtn.setAttribute('title', isPwd ? 'Hide password' : 'Show password');
+          if (iconEl) iconEl.src = isPwd ? 'img/hide.png' : 'img/view.png';
+        });
+      }
+    })();
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const id = document.getElementById('id').value.trim();
+      const password = document.getElementById('password').value.trim();
+      const nickInput = document.getElementById('nick'); // hidden
+      const errorEl = document.getElementById('error');
+      errorEl.textContent = '';
+
+      // 1) Получаем ник по ID с сервера (чтобы пользователь не вводил Nick)
+      let nick = '';
+      try {
+        const getUserRes = await fetch('/get-user', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id })
+        });
+        if (!getUserRes.ok) {
+          errorEl.textContent = 'User ID not found.';
+          return;
+        }
+        const user = await getUserRes.json();
+        nick = (user && user.nick) ? String(user.nick) : '';
+        if (!nick) {
+          errorEl.textContent = 'Nick is missing for this ID.';
+          return;
+        }
+        nickInput.value = nick; // заполняем скрытое поле, чтобы совместимо со старым /auth
+      } catch (err) {
+        errorEl.textContent = 'Network error while fetching user.';
+        return;
+      }
+
+      // 2) Аутентификация с id+nick+password (совместимо с текущим бэком)
+      const res = await fetch('/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, nick, password })
+      });
+
+      if (res.ok) {
+        // храним как раньше, чтобы остальной фронт не ломался
+        try {
+          localStorage.setItem("username", nick);
+          localStorage.setItem("userID", id);
+        } catch (_) {}
+
+        fetch('/check-subscription', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id })
+        })
+        .then(r => r.json())
+        .then(data => {
+          try { localStorage.setItem("Subscription", data.subscription ? "true" : "false"); } catch(_) {}
+        })
+        .catch(() => {
+          try { localStorage.setItem("Subscription", "false"); } catch(_) {}
+        });
+
+        fetch('/check-admin', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id })
+        })
+        .then(r => r.json())
+        .then(data => {
+          try { localStorage.setItem("isAdmin", data.admin ? "true" : "false"); } catch(_) {}
+          window.location.href = "/select.html";
+        })
+        .catch(() => {
+          try { localStorage.setItem("isAdmin", "false"); } catch(_) {}
+          window.location.href = "/select.html";
+        });
+      } else {
+        errorEl.textContent = "Incorrect credentials!";
+      }
+    });
+  </script>
+
+</body>
+</html>

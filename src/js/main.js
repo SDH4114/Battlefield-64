@@ -10,6 +10,7 @@ let selectedSquare = null;
 let selectedPiece = null;
 let currentTurn = "pink"; // pink ходит первым
 let currentLegalMoves = [];
+let moveCount = 1; // счётчик ходов для отображения в Info
 
 // ====== ASSETS PATH ======
 // ./pieces/game is life/pink/king.png и т.д.
@@ -88,6 +89,51 @@ function getPieceAtBoard(board, row, col) {
   return board[row][col];
 }
 
+// ====== LOGGING HELPERS ======
+function getPieceLetter(type) {
+  switch (type) {
+    case "pawn":
+      return "";
+    case "tower":
+      return "R";   // rook
+    case "elephant":
+      return "B";   // bishop
+    case "hourse":
+      return "N";   // knight
+    case "queen":
+      return "Q";
+    case "king":
+      return "K";
+    default:
+      return "?";
+  }
+}
+
+function getPieceName(type) {
+  switch (type) {
+    case "pawn":
+      return "Pawn";
+    case "tower":
+      return "Rook";
+    case "elephant":
+      return "Bishop";
+    case "hourse":
+      return "Knight";
+    case "queen":
+      return "Queen";
+    case "king":
+      return "King";
+    default:
+      return "Piece";
+  }
+}
+
+function formatColorLabel(color) {
+  if (color === "pink") return "Pink";
+  if (color === "cyan") return "Cyan";
+  return color;
+}
+
 // ====== PIECES PLACEMENT ======
 function placePiece(color, type, row, col) {
   const square = getSquare(row, col);
@@ -111,6 +157,7 @@ function setupInitialPosition() {
   currentTurn = "pink";
   currentTurnEl.textContent = currentTurn;
   movesLogEl.innerHTML = "";
+  moveCount = 1;
 
   const backRankOrder = [
     "tower",
@@ -419,7 +466,7 @@ function updateCheckStatus() {
   clearCheckHighlight();
 
   const board = getBoardState();
-  const colorToMove = currentTurn; // сторона, которая сейчас должна ходить
+  const colorToMove = currentTurn; 
   const kingPos = findKing(board, colorToMove);
   if (!kingPos) return;
 
@@ -430,9 +477,14 @@ function updateCheckStatus() {
 
     const hasMoves = hasAnyLegalMove(board, colorToMove);
     if (!hasMoves) {
-      alert(`${colorToMove.toUpperCase()} is checkmated!`);
+      showWinnerBanner(colorToMove === "pink" ? "cyan" : "pink");
     }
   }
+}
+function showWinnerBanner(winnerColor) {
+  const banner = document.getElementById("winner-banner");
+  banner.textContent = `${winnerColor.toUpperCase()} WINS!`;
+  banner.style.display = "block";
 }
 // ====== SELECTION / MOVES ======
 function clearSelections() {
@@ -505,22 +557,42 @@ function makeMove(fromSquare, toSquare, piece) {
 
   const fromNotation = toAlgebraic(fromRow, fromCol);
   const toNotation = toAlgebraic(toRow, toCol);
-  const moveText = `${piece.dataset.type[0].toUpperCase()}: ${fromNotation} → ${toNotation}`;
+  const movedColor = currentTurn;
+
+  // check if there was a piece to capture on the target square BEFORE moving
+  const capturedPieceEl = toSquare.querySelector(".piece");
+  let captureInfo = "";
+  if (capturedPieceEl) {
+    const capturedColor = formatColorLabel(capturedPieceEl.dataset.color);
+    const capturedName = getPieceName(capturedPieceEl.dataset.type);
+    captureInfo = ` (captured ${capturedColor} ${capturedName})`;
+  }
 
   fromSquare.innerHTML = "";
   toSquare.innerHTML = "";
   toSquare.appendChild(piece);
 
+  const pieceName = getPieceName(piece.dataset.type);
+  const colorLabel = formatColorLabel(movedColor);
+  const moveCore = `${pieceName} - ${fromNotation} \u2192 ${toNotation}`;
+
+  // after the move is on the board, check if it gives check to the opponent
+  const boardAfterMove = getBoardState();
+  const enemyColor = movedColor === "pink" ? "cyan" : "pink";
+  const givesCheck = isKingInCheck(boardAfterMove, enemyColor);
+  const checkInfo = givesCheck ? " (check)" : "";
+
   const li = document.createElement("li");
-  li.textContent = `${currentTurn}: ${moveText}`;
+  // show explicit move number in the text so it is always visible
+  li.textContent = `${moveCount}. ${colorLabel}: ${moveCore}${captureInfo}${checkInfo}`;
   movesLogEl.appendChild(li);
+  moveCount += 1;
   movesLogEl.scrollTop = movesLogEl.scrollHeight;
 
   clearSelections();
   selectedPiece = null;
   selectedSquare = null;
 
-  const movedColor = currentTurn;
   // смена хода
   currentTurn = currentTurn === "pink" ? "cyan" : "pink";
   currentTurnEl.textContent = currentTurn;
