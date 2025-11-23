@@ -13,10 +13,12 @@
   <div class="page">
     <header class="top-bar">
       <div class="logo">
-        <img src="logoV2.png" alt="Logo" style="height:36px; /*transform: translateY(16px);*/ margin-right:-8px; vertical-align:middle;">
+        <img src="logoV2.png" alt="Logo"
+             style="height:36px; margin-right:-8px; vertical-align:middle;">
         Battlefield 64
       </div>
       <div class="controls">
+        <button id="report-bug-btn">Report Bug</button>
         <button id="new-game">New Game</button>
       </div>
     </header>
@@ -45,6 +47,8 @@
     </main>
   </div>
 
-  <script src="./src/js/main.js" defer></script>
+  <!-- сначала системный JS, потом логика игры -->
+  <script src="./src/js/sys.js" defer></script>
+  <script src="./src/js/chess.js" defer></script>
 </body>
 </html>

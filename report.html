@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Battlefield 64 — Report Bug</title>
+  <link rel="stylesheet" href="./src/css/style.css" />
+  <link rel="icon" type="image/png" sizes="512x512" href="./logoBrow.png" />
+  <link rel="shortcut icon" type="image/png" href="./logoBrow.png" />
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <link href="https://fonts.googleapis.com/css2?family=Varela+Round&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="page">
+    <header class="top-bar">
+      <div class="logo">
+        <img src="logoV2.png" alt="Logo"
+             style="height:36px; margin-right:-8px; vertical-align:middle;">
+        Battlefield 64
+      </div>
+      <div class="controls">
+        <button id="back-to-game-btn">Back to game</button>
+      </div>
+    </header>
+
+    <main class="main-layout">
+      <section class="bug-report-section">
+        <h1>Report a Bug</h1>
+        <p>If you found a bug, please describe it and attach a screenshot.</p>
+
+        <!-- mailto-форма: откроет почтовый клиент пользователя -->
+        <form
+          id="bug-report-form"
+          action="mailto:mammadob.amin2000@gmail.com"
+          method="POST"
+          enctype="multipart/form-data"
+        >
+          <div class="form-row">
+            <label for="name">Your name</label>
+            <input type="text" id="name" name="name" required />
+          </div>
+
+          <div class="form-row">
+            <label for="email">Your email</label>
+            <input type="email" id="email" name="email" required />
+          </div>
+
+          <div class="form-row">
+            <label for="description">Bug description</label>
+            <textarea
+              id="description"
+              name="description"
+              rows="5"
+              placeholder="What happened? What did you expect to happen?"
+              required
+            ></textarea>
+          </div>
+
+          <div class="form-row">
+            <label for="screenshot">Screenshot (optional)</label>
+            <input
+              type="file"
+              id="screenshot"
+              name="screenshot"
+              accept="image/*"
+            />
+          </div>
+
+          <button type="submit" class="primary-btn">Send Report</button>
+        </form>
+
+        <p class="note">
+          The report will be sent to: <strong>mammadob.amin2000@gmail.com</strong>
+        </p>
+      </section>
+    </main>
+  </div>
+
+  <script src="./src/js/sys.js" defer></script>
+</body>
+</html>

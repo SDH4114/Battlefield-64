@@ -10,12 +10,32 @@ let selectedSquare = null;
 let selectedPiece = null;
 let currentTurn = "pink"; // pink ходит первым
 let currentLegalMoves = [];
-let moveCount = 1; // счётчик ходов для отображения в Info
+let moveCount = 1; // счётчик ходов в Info
+
+let castlingRights = {
+  pink: { kingSide: true, queenSide: true },
+  cyan: { kingSide: true, queenSide: true },
+};
 
 // ====== ASSETS PATH ======
-// ./pieces/game is life/pink/king.png и т.д.
 function getPieceSrc(color, type) {
+  // ./public/pieces/game is life/pink/king.png → ./pieces/game is life/pink/king.png
   return `./pieces/game is life/${color}/${type}.png`;
+}
+
+// ====== WINNER BANNER ======
+function hideWinnerBanner() {
+  const banner = document.getElementById("winner-banner");
+  if (!banner) return;
+  banner.style.display = "none";
+  banner.textContent = "";
+}
+
+function showWinnerBanner(winnerColor) {
+  const banner = document.getElementById("winner-banner");
+  if (!banner) return;
+  banner.textContent = `${winnerColor.toUpperCase()} WINS!`;
+  banner.style.display = "block";
 }
 
 // ====== BOARD & DOM HELPERS ======
@@ -57,7 +77,7 @@ function isInside(row, col) {
   return row >= 0 && row < BOARD_SIZE && col >= 0 && col < BOARD_SIZE;
 }
 
-// Состояние доски в виде массива 8x8: {color, type} или null
+// Состояние доски в виде массива 8×8
 function getBoardState() {
   const board = [];
   for (let r = 0; r < BOARD_SIZE; r++) {
@@ -79,8 +99,8 @@ function getBoardState() {
 }
 
 function cloneBoard(board) {
-  return board.map(row =>
-    row.map(cell => (cell ? { color: cell.color, type: cell.type } : null))
+  return board.map((row) =>
+    row.map((cell) => (cell ? { color: cell.color, type: cell.type } : null))
   );
 }
 
@@ -90,25 +110,6 @@ function getPieceAtBoard(board, row, col) {
 }
 
 // ====== LOGGING HELPERS ======
-function getPieceLetter(type) {
-  switch (type) {
-    case "pawn":
-      return "";
-    case "tower":
-      return "R";   // rook
-    case "elephant":
-      return "B";   // bishop
-    case "hourse":
-      return "N";   // knight
-    case "queen":
-      return "Q";
-    case "king":
-      return "K";
-    default:
-      return "?";
-  }
-}
-
 function getPieceName(type) {
   switch (type) {
     case "pawn":
@@ -134,6 +135,59 @@ function formatColorLabel(color) {
   return color;
 }
 
+// ====== CASTLING RIGHTS ======
+function updateCastlingRightsOnMove(
+  fromRow,
+  fromCol,
+  toRow,
+  toCol,
+  piece,
+  capturedPieceEl
+) {
+  const color = piece.dataset.color;
+  const type = piece.dataset.type;
+
+  // король сделал ход — рокировок больше нет
+  if (type === "king" && castlingRights[color]) {
+    castlingRights[color].kingSide = false;
+    castlingRights[color].queenSide = false;
+  }
+
+  // ладья делает ход со стартовой клетки
+  if (type === "tower") {
+    if (color === "pink") {
+      if (fromRow === 7 && fromCol === 0 && castlingRights.pink) {
+        castlingRights.pink.queenSide = false;
+      }
+      if (fromRow === 7 && fromCol === 7 && castlingRights.pink) {
+        castlingRights.pink.kingSide = false;
+      }
+    } else if (color === "cyan") {
+      if (fromRow === 0 && fromCol === 0 && castlingRights.cyan) {
+        castlingRights.cyan.queenSide = false;
+      }
+      if (fromRow === 0 && fromCol === 7 && castlingRights.cyan) {
+        castlingRights.cyan.kingSide = false;
+      }
+    }
+  }
+
+  // если ладью съели на её стартовом поле
+  if (capturedPieceEl && capturedPieceEl.dataset.type === "tower") {
+    const capturedColor = capturedPieceEl.dataset.color;
+    const r = toRow;
+    const c = toCol;
+
+    if (capturedColor === "pink" && castlingRights.pink) {
+      if (r === 7 && c === 0) castlingRights.pink.queenSide = false;
+      if (r === 7 && c === 7) castlingRights.pink.kingSide = false;
+    } else if (capturedColor === "cyan" && castlingRights.cyan) {
+      if (r === 0 && c === 0) castlingRights.cyan.queenSide = false;
+      if (r === 0 && c === 7) castlingRights.cyan.kingSide = false;
+    }
+  }
+}
+
 // ====== PIECES PLACEMENT ======
 function placePiece(color, type, row, col) {
   const square = getSquare(row, col);
@@ -150,14 +204,26 @@ function placePiece(color, type, row, col) {
 }
 
 function setupInitialPosition() {
+  hideWinnerBanner();
   clearSelections();
   clearCheckHighlight();
+
   selectedSquare = null;
   selectedPiece = null;
   currentTurn = "pink";
   currentTurnEl.textContent = currentTurn;
   movesLogEl.innerHTML = "";
   moveCount = 1;
+
+  castlingRights = {
+    pink: { kingSide: true, queenSide: true },
+    cyan: { kingSide: true, queenSide: true },
+  };
+
+  // очистить все клетки
+  document.querySelectorAll(".square").forEach((sq) => {
+    sq.innerHTML = "";
+  });
 
   const backRankOrder = [
     "tower",
@@ -265,8 +331,9 @@ function getPseudoMoves(board, row, col, color, type, options = {}) {
   const enemyColor = color === "pink" ? "cyan" : "pink";
   const attackOnly = options.attackOnly === true;
 
+  // --- PAWN ---
   if (type === "pawn") {
-    const dir = color === "pink" ? -1 : 1; // pink вверх, cyan вниз
+    const dir = color === "pink" ? -1 : 1;
     const startRow = color === "pink" ? 6 : 1;
 
     // атака по диагонали (для шаха и взятий)
@@ -281,7 +348,6 @@ function getPseudoMoves(board, row, col, color, type, options = {}) {
     });
 
     if (!attackOnly) {
-      // ход вперёд (без взятия)
       const oneRow = row + dir;
       if (isInside(oneRow, col) && !getPieceAtBoard(board, oneRow, col)) {
         moves.push({ row: oneRow, col });
@@ -298,6 +364,7 @@ function getPseudoMoves(board, row, col, color, type, options = {}) {
     }
   }
 
+  // --- ROOK / QUEEN (по прямым) ---
   if (type === "tower" || type === "queen") {
     const directions = [
       { dr: -1, dc: 0 },
@@ -324,6 +391,7 @@ function getPseudoMoves(board, row, col, color, type, options = {}) {
     });
   }
 
+  // --- BISHOP / QUEEN (по диагонали) ---
   if (type === "elephant" || type === "queen") {
     const directions = [
       { dr: -1, dc: -1 },
@@ -350,6 +418,7 @@ function getPseudoMoves(board, row, col, color, type, options = {}) {
     });
   }
 
+  // --- KNIGHT ---
   if (type === "hourse") {
     const jumps = [
       { dr: -2, dc: -1 },
@@ -372,7 +441,9 @@ function getPseudoMoves(board, row, col, color, type, options = {}) {
     });
   }
 
+  // --- KING ---
   if (type === "king") {
+    // обычные ходы 1 клетка
     for (let dr = -1; dr <= 1; dr++) {
       for (let dc = -1; dc <= 1; dc++) {
         if (dr === 0 && dc === 0) continue;
@@ -382,6 +453,49 @@ function getPseudoMoves(board, row, col, color, type, options = {}) {
         const target = getPieceAtBoard(board, r, c);
         if (!target || target.color === enemyColor) {
           moves.push({ row: r, col: c });
+        }
+      }
+    }
+
+    // рокировка — только когда НЕ считаем атаки
+    if (!attackOnly && castlingRights[color]) {
+      const enemy = enemyColor;
+      const baseRow = color === "pink" ? 7 : 0;
+
+      if (row === baseRow && col === 4) {
+        // короткая рокировка (king side)
+        if (castlingRights[color].kingSide) {
+          const rookCol = 7;
+          const sq5 = getPieceAtBoard(board, baseRow, 5);
+          const sq6 = getPieceAtBoard(board, baseRow, 6);
+          const rook = getPieceAtBoard(board, baseRow, rookCol);
+          if (!sq5 && !sq6 && rook && rook.color === color && rook.type === "tower") {
+            if (
+              !isKingInCheck(board, color) &&
+              !isSquareAttacked(board, baseRow, 5, enemy) &&
+              !isSquareAttacked(board, baseRow, 6, enemy)
+            ) {
+              moves.push({ row: baseRow, col: 6 }); // e → g
+            }
+          }
+        }
+
+        // длинная рокировка (queen side)
+        if (castlingRights[color].queenSide) {
+          const rookCol = 0;
+          const sq1 = getPieceAtBoard(board, baseRow, 1);
+          const sq2 = getPieceAtBoard(board, baseRow, 2);
+          const sq3 = getPieceAtBoard(board, baseRow, 3);
+          const rook = getPieceAtBoard(board, baseRow, rookCol);
+          if (!sq1 && !sq2 && !sq3 && rook && rook.color === color && rook.type === "tower") {
+            if (
+              !isKingInCheck(board, color) &&
+              !isSquareAttacked(board, baseRow, 2, enemy) &&
+              !isSquareAttacked(board, baseRow, 3, enemy)
+            ) {
+              moves.push({ row: baseRow, col: 2 }); // e → c
+            }
+          }
         }
       }
     }
@@ -428,7 +542,7 @@ function hasAnyLegalMove(board, color) {
         newBoard[move.row][move.col] = { ...cell };
         newBoard[r][c] = null;
         if (!isKingInCheck(newBoard, color)) {
-          return true; // нашёлся хотя бы один ход, который спасает короля
+          return true;
         }
       }
     }
@@ -436,7 +550,7 @@ function hasAnyLegalMove(board, color) {
   return false;
 }
 
-// Легальные (с учётом короля) ходы конкретной фигуры
+// Легальные ходы конкретной фигуры
 function getLegalMovesForPiece(square, piece) {
   const board = getBoardState();
   const row = Number(square.dataset.row);
@@ -464,9 +578,10 @@ function getLegalMovesForPiece(square, piece) {
 // Подсветка шаха/мата
 function updateCheckStatus() {
   clearCheckHighlight();
+  hideWinnerBanner(); // если нет мата, баннер не должен висеть
 
   const board = getBoardState();
-  const colorToMove = currentTurn; 
+  const colorToMove = currentTurn;
   const kingPos = findKing(board, colorToMove);
   if (!kingPos) return;
 
@@ -481,11 +596,7 @@ function updateCheckStatus() {
     }
   }
 }
-function showWinnerBanner(winnerColor) {
-  const banner = document.getElementById("winner-banner");
-  banner.textContent = `${winnerColor.toUpperCase()} WINS!`;
-  banner.style.display = "block";
-}
+
 // ====== SELECTION / MOVES ======
 function clearSelections() {
   document.querySelectorAll(".piece.selected").forEach((p) => {
@@ -498,7 +609,7 @@ function onSquareClick(e) {
   const square = e.currentTarget;
   const piece = square.querySelector(".piece");
 
-  // 1) Ничего не выбрано — выбираем свою фигуру
+  // 1) ещё не выбрана фигура
   if (!selectedPiece) {
     if (!piece) return;
     if (piece.dataset.color !== currentTurn) return;
@@ -513,7 +624,7 @@ function onSquareClick(e) {
     return;
   }
 
-  // 2) Клик по той же клетке — снять выбор
+  // 2) клик по той же клетке — снять выбор
   if (square === selectedSquare) {
     clearSelections();
     selectedPiece = null;
@@ -523,7 +634,7 @@ function onSquareClick(e) {
 
   const targetPiece = square.querySelector(".piece");
 
-  // 3) Клик по своей фигуре в другой клетке — сменить выбор
+  // 3) клик по своей другой фигуре — смена выбора
   if (targetPiece && targetPiece.dataset.color === selectedPiece.dataset.color) {
     clearSelections();
     selectedPiece = targetPiece;
@@ -535,17 +646,15 @@ function onSquareClick(e) {
     return;
   }
 
-  // 4) Проверяем, можно ли сюда походить (есть ли ход в currentLegalMoves)
+  // 4) проверяем, легален ли ход
   const toRow = Number(square.dataset.row);
   const toCol = Number(square.dataset.col);
   const isLegal = currentLegalMoves.some(
     (m) => m.row === toRow && m.col === toCol
   );
-  if (!isLegal) {
-    return;
-  }
+  if (!isLegal) return;
 
-  // 5) Ходим
+  // 5) делаем ход
   makeMove(selectedSquare, square, selectedPiece);
 }
 
@@ -559,7 +668,7 @@ function makeMove(fromSquare, toSquare, piece) {
   const toNotation = toAlgebraic(toRow, toCol);
   const movedColor = currentTurn;
 
-  // check if there was a piece to capture on the target square BEFORE moving
+  // была ли фигура на целевой клетке ДО хода
   const capturedPieceEl = toSquare.querySelector(".piece");
   let captureInfo = "";
   if (capturedPieceEl) {
@@ -568,26 +677,54 @@ function makeMove(fromSquare, toSquare, piece) {
     captureInfo = ` (captured ${capturedColor} ${capturedName})`;
   }
 
+  // обновляем права рокировки
+  updateCastlingRightsOnMove(
+    fromRow,
+    fromCol,
+    toRow,
+    toCol,
+    piece,
+    capturedPieceEl
+  );
+
   fromSquare.innerHTML = "";
   toSquare.innerHTML = "";
   toSquare.appendChild(piece);
 
+  // если это рокировка — двигаем ладью
+  if (piece.dataset.type === "king" && Math.abs(toCol - fromCol) === 2) {
+    const row = toRow;
+
+    if (toCol === 6) {
+      // короткая: h → f
+      const rookFrom = getSquare(row, 7);
+      const rookTo = getSquare(row, 5);
+      if (rookFrom && rookTo) {
+        const rookPiece = rookFrom.querySelector(".piece");
+        if (rookPiece) {
+          rookFrom.innerHTML = "";
+          rookTo.innerHTML = "";
+          rookTo.appendChild(rookPiece);
+        }
+      }
+    } else if (toCol === 2) {
+      // длинная: a → d
+      const rookFrom = getSquare(row, 0);
+      const rookTo = getSquare(row, 3);
+      if (rookFrom && rookTo) {
+        const rookPiece = rookFrom.querySelector(".piece");
+        if (rookPiece) {
+          rookFrom.innerHTML = "";
+          rookTo.innerHTML = "";
+          rookTo.appendChild(rookPiece);
+        }
+      }
+    }
+  }
+
   const pieceName = getPieceName(piece.dataset.type);
   const colorLabel = formatColorLabel(movedColor);
   const moveCore = `${pieceName} - ${fromNotation} \u2192 ${toNotation}`;
-
-  // after the move is on the board, check if it gives check to the opponent
-  const boardAfterMove = getBoardState();
-  const enemyColor = movedColor === "pink" ? "cyan" : "pink";
-  const givesCheck = isKingInCheck(boardAfterMove, enemyColor);
-  const checkInfo = givesCheck ? " (check)" : "";
-
-  const li = document.createElement("li");
-  // show explicit move number in the text so it is always visible
-  li.textContent = `${moveCount}. ${colorLabel}: ${moveCore}${captureInfo}${checkInfo}`;
-  movesLogEl.appendChild(li);
-  moveCount += 1;
-  movesLogEl.scrollTop = movesLogEl.scrollHeight;
 
   clearSelections();
   selectedPiece = null;
@@ -597,7 +734,22 @@ function makeMove(fromSquare, toSquare, piece) {
   currentTurn = currentTurn === "pink" ? "cyan" : "pink";
   currentTurnEl.textContent = currentTurn;
 
-  // Проверяем шах/мат для стороны, которая теперь должна ходить
+  // после смены хода смотрим, что чувствует сторона, которой теперь ходить
+  const boardAfterMove = getBoardState();
+  const colorToMoveNow = currentTurn;
+  let checkInfo = "";
+  if (isKingInCheck(boardAfterMove, colorToMoveNow)) {
+    const hasMoves = hasAnyLegalMove(boardAfterMove, colorToMoveNow);
+    checkInfo = hasMoves ? " (check)" : " (check me)";
+  }
+
+  const li = document.createElement("li");
+  li.textContent = `${moveCount}. ${colorLabel}: ${moveCore}${captureInfo}${checkInfo}`;
+  movesLogEl.appendChild(li);
+  moveCount += 1;
+  movesLogEl.scrollTop = movesLogEl.scrollHeight;
+
+  // визуал шах/мат + баннер
   updateCheckStatus();
 }
 
@@ -610,13 +762,15 @@ function toAlgebraic(row, col) {
 }
 
 // ====== NEW GAME BUTTON ======
-newGameBtn.addEventListener("click", () => {
+function initGame() {
   createBoardGrid();
   createCoordinates();
   setupInitialPosition();
+}
+
+newGameBtn.addEventListener("click", () => {
+  initGame();
 });
 
 // ====== INITIALIZE ======
-createBoardGrid();
-createCoordinates();
-setupInitialPosition();
+initGame();
