@@ -377,3 +377,47 @@ body::after {
   background: linear-gradient(180deg, #ff79c6, #8be9fd);
   border-radius: 999px;
 }
+.bug-report-section {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 24px 32px;
+  border-radius: 18px;
+  background: rgba(10, 12, 40, 0.8);
+  box-shadow: 0 0 24px rgba(255, 0, 200, 0.25);
+}
+
+.bug-report-section h1 {
+  margin-bottom: 8px;
+}
+
+.form-row {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 16px;
+}
+
+.form-row label {
+  margin-bottom: 4px;
+}
+
+.form-row input,
+.form-row textarea {
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 8px 10px;
+  background: rgba(15, 18, 60, 0.9);
+  color: #fff;
+}
+
+.primary-btn {
+  border-radius: 999px;
+  padding: 8px 18px;
+  border: 1px solid #ff66ff;
+  background: linear-gradient(90deg, #ff66ff, #66ccff);
+  color: #fff;
+  cursor: pointer;
+}
+
+.primary-btn:hover {
+  opacity: 0.9;
+}
