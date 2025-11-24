@@ -71,32 +71,36 @@
     <h1>Report a Bug</h1>
     <p>If you found a bug, please describe it below.</p>
 
-    <form id="bug-report-form">
-      <div class="form-row">
-        <label>Your name:</label>
-        <input type="text" name="name" required>
-      </div>
+      <form class="contact-form"
+            action="https://formsubmit.co/mammadob.amin2000@gmail.com"
+            method="POST"
+            enctype="multipart/form-data">
 
-      <div class="form-row">
-        <label>Your email:</label>
-        <input type="email" name="email" required>
-      </div>
+          <input type="hidden" name="_captcha" value="false">
+          <input type="hidden" name="_template" value="box">
 
-      <div class="form-row">
-        <label>Bug description:</label>
-        <textarea name="message" rows="5" required></textarea>
-      </div>
+          <div class="form-row">
+            <label>Your name:</label>
+            <input type="text" name="name" required>
+          </div>
 
-      <div class="form-row">
-        <label>Screenshot (optional):</label>
-        <input type="file" id="screenshot" accept="image/*">
-      </div>
+          <div class="form-row">
+            <label>Your email:</label>
+            <input type="email" name="email" required>
+          </div>
 
-      <button type="submit">Submit Bug Report</button>
+          <div class="form-row">
+            <label>Bug description:</label>
+            <textarea name="message" rows="5" required></textarea>
+          </div>
 
-      <p id="status"></p>
-    </form>
+          <div class="form-row">
+            <label>Screenshot:</label>
+            <input type="file" name="attachment" accept="image/*">
+          </div>
 
+          <button type="submit">Submit Bug Report</button>
+      </form>
     <a href="index.html" class="back-btn">← Back to game</a>
   </div>
 
