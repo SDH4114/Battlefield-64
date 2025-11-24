@@ -71,37 +71,43 @@
     <h1>Report a Bug</h1>
     <p>If you found a bug, please describe it below.</p>
 
-      <form class="contact-form"
-            action="https://formsubmit.co/mammadob.amin2000@gmail.com"
-            method="POST"
-            enctype="multipart/form-data">
+    <form id="bug-report-form"
+          class="contact-form"
+          action="https://formsubmit.co/mammadov.amin2000@gmail.com"
+          method="POST"
+          enctype="multipart/form-data">
 
-          <input type="hidden" name="_captcha" value="false">
-          <input type="hidden" name="_template" value="box">
+      <!-- Настройки FormSubmit -->
+      <input type="hidden" name="_captcha" value="false">
+      <input type="hidden" name="_template" value="box">
 
-          <div class="form-row">
-            <label>Your name:</label>
-            <input type="text" name="name" required>
-          </div>
+      <div class="form-row">
+        <label>Your name:</label>
+        <input type="text" name="name" required>
+      </div>
 
-          <div class="form-row">
-            <label>Your email:</label>
-            <input type="email" name="email" required>
-          </div>
+      <div class="form-row">
+        <label>Your email:</label>
+        <input type="email" name="email" required>
+      </div>
 
-          <div class="form-row">
-            <label>Bug description:</label>
-            <textarea name="message" rows="5" required></textarea>
-          </div>
+      <div class="form-row">
+        <label>Bug description:</label>
+        <textarea name="message" rows="5" required></textarea>
+      </div>
 
-          <div class="form-row">
-            <label>Screenshot:</label>
-            <input type="file" name="attachment" accept="image/*">
-          </div>
+      <div class="form-row">
+        <label>Screenshot:</label>
+        <input type="file" name="attachment" accept="image/*">
+      </div>
 
-          <button type="submit">Submit Bug Report</button>
-      </form>
-    <a href="index.html" class="back-btn">← Back to game</a>
+      <button type="submit">Submit Bug Report</button>
+
+      <!-- сюда будет писать "Sending..." -->
+      <p id="status"></p>
+    </form>
+
+    <a href="index.html" class="back-btn" id="back-to-game-btn">← Back to game</a>
   </div>
 
   <script src="./src/js/sys.js" defer></script>
