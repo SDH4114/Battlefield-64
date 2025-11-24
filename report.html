@@ -2,77 +2,102 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Battlefield 64 — Report Bug</title>
+  <title>Battlefield 64 - Report Bug</title>
   <link rel="stylesheet" href="./src/css/style.css" />
-  <link rel="icon" type="image/png" sizes="512x512" href="./logoBrow.png" />
-  <link rel="shortcut icon" type="image/png" href="./logoBrow.png" />
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <link href="https://fonts.googleapis.com/css2?family=Varela+Round&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/png" href="./logoBrow.png" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    body {
+      font-family: "Courier New", monospace;
+    }
+
+    .report-container {
+      max-width: 600px;
+      margin: 40px auto;
+      background: rgba(10, 12, 40, 0.85);
+      padding: 24px;
+      border-radius: 16px;
+      box-shadow: 0 0 20px rgba(255, 0, 200, 0.25);
+      color: #fff;
+    }
+
+    .report-container h1 {
+      margin-bottom: 12px;
+      font-size: 28px;
+    }
+
+    .form-row {
+      margin-bottom: 16px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .form-row input,
+    .form-row textarea {
+      padding: 10px;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.2);
+      background: rgba(20, 20, 60, 0.85);
+      color: #fff;
+    }
+
+    button {
+      padding: 12px 22px;
+      border-radius: 12px;
+      border: 1px solid #ff78ff;
+      background: linear-gradient(90deg, #ff55ff, #66ccff);
+      cursor: pointer;
+      font-size: 18px;
+      color: #fff;
+    }
+
+    #status {
+      margin-top: 14px;
+      min-height: 20px;
+      font-size: 16px;
+    }
+
+    .back-btn {
+      margin-top: 20px;
+      display: inline-block;
+      color: #66ccff;
+    }
+  </style>
 </head>
+
 <body>
-  <div class="page">
-    <header class="top-bar">
-      <div class="logo">
-        <img src="logoV2.png" alt="Logo"
-             style="height:36px; margin-right:-8px; vertical-align:middle;">
-        Battlefield 64
+  <div class="report-container">
+    <h1>Report a Bug</h1>
+    <p>If you found a bug, please describe it below.</p>
+
+    <form id="bug-report-form">
+      <div class="form-row">
+        <label>Your name:</label>
+        <input type="text" name="name" required>
       </div>
-      <div class="controls">
-        <button id="back-to-game-btn">Back to game</button>
+
+      <div class="form-row">
+        <label>Your email:</label>
+        <input type="email" name="email" required>
       </div>
-    </header>
 
-    <main class="main-layout">
-      <section class="bug-report-section">
-        <h1>Report a Bug</h1>
-        <p>If you found a bug, please describe it and attach a screenshot.</p>
+      <div class="form-row">
+        <label>Bug description:</label>
+        <textarea name="message" rows="5" required></textarea>
+      </div>
 
-        <!-- mailto-форма: откроет почтовый клиент пользователя -->
-        <form
-          id="bug-report-form"
-          action="mailto:mammadov.amin2000@gmail.com"
-          method="POST"
-          enctype="multipart/form-data"
-        >
-          <div class="form-row">
-            <label for="name">Your name</label>
-            <input type="text" id="name" name="name" required />
-          </div>
+      <div class="form-row">
+        <label>Screenshot (optional):</label>
+        <input type="file" id="screenshot" accept="image/*">
+      </div>
 
-          <div class="form-row">
-            <label for="email">Your email</label>
-            <input type="email" id="email" name="email" required />
-          </div>
+      <button type="submit">Submit Bug Report</button>
 
-          <div class="form-row">
-            <label for="description">Bug description</label>
-            <textarea
-              id="description"
-              name="description"
-              rows="5"
-              placeholder="What happened? What did you expect to happen?"
-              required
-            ></textarea>
-          </div>
+      <p id="status"></p>
+    </form>
 
-          <div class="form-row">
-            <label for="screenshot">Screenshot (optional)</label>
-            <input
-              type="file"
-              id="screenshot"
-              name="screenshot"
-              accept="image/*"
-            />
-          </div>
-
-          <button type="submit" class="primary-btn">Send Report</button>
-        </form>
-
-        <p class="note">
-          The report will be sent to: <strong>mammadov.amin2000@gmail.com</strong>
-        </p>
-      </section>
-    </main>
+    <a href="index.html" class="back-btn">← Back to game</a>
   </div>
 
   <script src="./src/js/sys.js" defer></script>
