@@ -2,53 +2,169 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Battlefield 64 - Chess</title>
+  <title>Battlefield 64</title>
   <link rel="stylesheet" href="./src/css/style.css" />
+  <link rel="stylesheet" href="./src/css/index.css" />
   <link rel="icon" type="image/png" sizes="512x512" href="./logoBrow.png" />
   <link rel="shortcut icon" type="image/png" href="./logoBrow.png" />
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <link href="https://fonts.googleapis.com/css2?family=Varela+Round&display=swap" rel="stylesheet">
 </head>
 <body>
-  <div class="page">
-    <header class="top-bar">
-      <div class="logo">
-        <img src="logoV2.png" alt="Logo"
-             style="height:36px; margin-right:-8px; vertical-align:middle;">
-        Battlefield 64
-      </div>
-      <div class="controls">
-        <button id="report-bug-btn" onclick="location.href='report.html'">Report Bug</button>
-        <button id="new-game">New Game</button>
-      </div>
-    </header>
+  <div class="container">
+    <!-- Logo Section -->
+    <div class="logo-section">
+      <img src="logoV2.png" alt="Battlefield 64 Logo" class="logo-img" onerror="this.style.display='none'">
+      <h1 class="logo-text">Battlefield 64</h1>
+      <p class="tagline">Strategic Chess Combat</p>
+    </div>
 
-    <main class="main-layout">
-      <div id="board">
-        <div id="winner-banner"></div>
-        <div id="board-top" class="coords-row"></div>
+    <!-- Main Menu -->
+    <div class="main-menu">
+      <div class="menu-buttons">
+        <button class="menu-btn primary" onclick="location.href='chess.html'">
+          <span>Start Game</span>
+        </button>
+        
+        <button class="menu-btn" onclick="location.href='tutorial.html'">
+          <span>Rules & Tutorial</span>
+        </button>
+        
+        <button class="menu-btn" onclick="location.href='report.html'">
+          <span>Report a Bug</span>
+        </button>
+        
+        <button class="menu-btn" onclick="alert('Feature in development!')">
+          <span>Leaderboard</span>
+        </button>
+        
+        <button class="menu-btn" onclick="alert('Coming soon!')">
+          <span>Multiplayer</span>
+        </button>
 
-        <div id="board-middle">
-          <div id="board-left" class="coords-col"></div>
-          <div id="board-grid"></div>
-          <div id="board-right" class="coords-col"></div>
+        <button class="menu-btn" onclick="location.href='https://github.com/SDH4114/Battlefield-64'">
+          <span>Repository</span>
+        </button>
+      </div>
+
+      <!-- Settings -->
+      <div class="settings-section">
+        <h2 class="settings-title">Settings</h2>
+        
+        <div class="setting-item">
+          <span class="setting-label">Sound effects</span>
+          <div class="toggle-switch active" onclick="toggleSetting(this, 'sound')"></div>
         </div>
-
-        <div id="board-bottom" class="coords-row"></div>
+        
+        <div class="setting-item">
+          <span class="setting-label">Move highlights</span>
+          <div class="toggle-switch active" onclick="toggleSetting(this, 'hints')"></div>
+        </div>
+        
+        <div class="setting-item">
+          <span class="setting-label">Piece animations</span>
+          <div class="toggle-switch active" onclick="toggleSetting(this, 'animation')"></div>
+        </div>
+        
+        <div class="setting-item">
+          <span class="setting-label">Opponent difficulty</span>
+          <div class="select-wrapper">
+            <select class="custom-select" id="difficulty" onchange="saveSetting('difficulty', this.value)">
+              <option value="easy">Easy</option>
+              <option value="medium" selected>Medium</option>
+              <option value="hard">Hard</option>
+              <option value="expert">Expert</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="setting-item">
+          <span class="setting-label">Piece style</span>
+          <div class="select-wrapper">
+            <select class="custom-select" id="theme" onchange="saveSetting('theme', this.value)">
+              <option value="classic" selected>Classic</option>
+              <option value="neon">Neon</option>
+              <option value="wood">Wood</option>
+              <option value="marble">Marble</option>
+            </select>
+          </div>
+        </div>
       </div>
+      <!-- Footer -->
+      <div class="footer">        
+        <div class="social-links">
+          <a href="https://discord.gg/rdFjmqaW6" class="social-link" title="Discord">Discord</a>
+          <a href="https://github.com/SDH4114" class="social-link" title="GitHub">GitHub</a>
+          <a href="https://t.me/sdhaos4114" class="social-link" title="Telegram">Telegram</a>
+          <a href="https://t.me/BreakLoop" class="social-link" title="BreakLoop">BreakLoop</a>
+        </div>
+        <p>© 2025 Battlefield 64. All rights reserved.</p>
+        <p>Version 1.0.4 Beta</p>
 
-      <aside class="sidebar">
-        <h2>Info</h2>
-        <p><strong>Current turn:</strong> <span id="current-turn">pink</span></p>
-
-        <h3>Moves</h3>
-        <ol id="moves-log"></ol>
-      </aside>
-    </main>
+      </div>
+    </div>
   </div>
 
-  <!-- сначала системный JS, потом логика игры -->
-  <script src="./src/js/sys.js" defer></script>
-  <script src="./src/js/chess.js" defer></script>
+  <script>
+    // Загрузка настроек из localStorage
+    function loadSettings() {
+      const sound = localStorage.getItem('sound') !== 'false';
+      const hints = localStorage.getItem('hints') !== 'false';
+      const animation = localStorage.getItem('animation') !== 'false';
+      const difficulty = localStorage.getItem('difficulty') || 'medium';
+      const theme = localStorage.getItem('theme') || 'classic';
+
+      // Применяем сохраненные настройки
+      document.querySelectorAll('.toggle-switch')[0].classList.toggle('active', sound);
+      document.querySelectorAll('.toggle-switch')[1].classList.toggle('active', hints);
+      document.querySelectorAll('.toggle-switch')[2].classList.toggle('active', animation);
+      document.getElementById('difficulty').value = difficulty;
+      document.getElementById('theme').value = theme;
+    }
+
+    // Переключение настроек
+    function toggleSetting(element, setting) {
+      element.classList.toggle('active');
+      const isActive = element.classList.contains('active');
+      localStorage.setItem(setting, isActive);
+      
+      // Визуальная обратная связь
+      element.style.transform = 'scale(0.95)';
+      setTimeout(() => {
+        element.style.transform = 'scale(1)';
+      }, 100);
+    }
+
+    // Сохранение выбора из select
+    function saveSetting(setting, value) {
+      localStorage.setItem(setting, value);
+      
+      // Визуальная обратная связь
+      const select = event.target;
+      select.style.transform = 'scale(0.98)';
+      setTimeout(() => {
+        select.style.transform = 'scale(1)';
+      }, 100);
+    }
+
+    // Загружаем настройки при загрузке страницы
+    window.addEventListener('DOMContentLoaded', loadSettings);
+
+    // Анимация появления кнопок
+    const buttons = document.querySelectorAll('.menu-btn');
+    buttons.forEach((btn, index) => {
+      btn.style.animation = `fadeInUp 0.6s ease-out ${0.1 * index}s both`;
+    });
+
+    // Добавляем звуковые эффекты при наведении (опционально)
+    buttons.forEach(btn => {
+      btn.addEventListener('mouseenter', () => {
+        if (localStorage.getItem('sound') !== 'false') {
+          // Здесь можно добавить звук hover
+          // new Audio('hover.mp3').play();
+        }
+      });
+    });
+  </script>
 </body>
 </html>

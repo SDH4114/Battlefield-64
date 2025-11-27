@@ -17,6 +17,8 @@ let castlingRights = {
   cyan: { kingSide: true, queenSide: true },
 };
 
+let promotionResolve = null; // callback for pending promotion
+
 // ====== ASSETS PATH ======
 function getPieceSrc(color, type) {
   // ./public/pieces/game is life/pink/king.png → ./pieces/game is life/pink/king.png
@@ -37,6 +39,40 @@ function showWinnerBanner(winnerColor) {
   banner.textContent = `${winnerColor.toUpperCase()} WINS!`;
   banner.style.display = "block";
 }
+
+// ====== PROMOTION DIALOG ======
+function openPromotionDialog(color, callback) {
+  const modal = document.getElementById("promotion-modal");
+  if (!modal) {
+    // fallback: auto-queen if modal is missing
+    callback("queen");
+    return;
+  }
+  promotionResolve = callback;
+  modal.classList.remove("hidden");
+}
+
+function closePromotionDialog() {
+  const modal = document.getElementById("promotion-modal");
+  if (modal) {
+    modal.classList.add("hidden");
+  }
+  promotionResolve = null;
+}
+
+// global click handler for promotion choice buttons
+document.addEventListener("click", (e) => {
+  if (!promotionResolve) return;
+  const btn = e.target.closest("[data-piece]");
+  if (!btn) return;
+  const modal = document.getElementById("promotion-modal");
+  if (!modal || !modal.contains(btn)) return;
+
+  const chosen = btn.dataset.piece;
+  const cb = promotionResolve;
+  closePromotionDialog();
+  cb(chosen);
+});
 
 // ====== BOARD & DOM HELPERS ======
 function createBoardGrid() {
@@ -133,6 +169,12 @@ function formatColorLabel(color) {
   if (color === "pink") return "Pink";
   if (color === "cyan") return "Cyan";
   return color;
+}
+
+function applyPromotion(piece, newType) {
+  piece.dataset.type = newType;
+  const color = piece.dataset.color;
+  piece.src = getPieceSrc(color, newType);
 }
 
 // ====== CASTLING RIGHTS ======
@@ -696,7 +738,7 @@ function makeMove(fromSquare, toSquare, piece) {
     const row = toRow;
 
     if (toCol === 6) {
-      // короткая: h → f
+      // короткая рокировка: h → f
       const rookFrom = getSquare(row, 7);
       const rookTo = getSquare(row, 5);
       if (rookFrom && rookTo) {
@@ -708,7 +750,7 @@ function makeMove(fromSquare, toSquare, piece) {
         }
       }
     } else if (toCol === 2) {
-      // длинная: a → d
+      // длинная рокировка: a → d
       const rookFrom = getSquare(row, 0);
       const rookTo = getSquare(row, 3);
       if (rookFrom && rookTo) {
@@ -722,6 +764,39 @@ function makeMove(fromSquare, toSquare, piece) {
     }
   }
 
+  const isPawnPromotion =
+    piece.dataset.type === "pawn" && (toRow === 0 || toRow === 7);
+
+  if (isPawnPromotion) {
+    // окно для выбора фигуры
+    openPromotionDialog(piece.dataset.color, (chosenType) => {
+      applyPromotion(piece, chosenType);
+      finishMoveLoggingAndCheck(
+        piece,
+        movedColor,
+        fromNotation,
+        toNotation,
+        captureInfo
+      );
+    });
+  } else {
+    finishMoveLoggingAndCheck(
+      piece,
+      movedColor,
+      fromNotation,
+      toNotation,
+      captureInfo
+    );
+  }
+}
+
+function finishMoveLoggingAndCheck(
+  piece,
+  movedColor,
+  fromNotation,
+  toNotation,
+  captureInfo
+) {
   const pieceName = getPieceName(piece.dataset.type);
   const colorLabel = formatColorLabel(movedColor);
   const moveCore = `${pieceName} - ${fromNotation} \u2192 ${toNotation}`;
@@ -761,8 +836,14 @@ function toAlgebraic(row, col) {
   return `${file}${rank}`;
 }
 
-// ====== NEW GAME BUTTON ======
+// ====== NEW GAME BUTTON / INIT ======
 function initGame() {
+  const modal = document.getElementById("promotion-modal");
+  if (modal) {
+    modal.classList.add("hidden");
+  }
+  promotionResolve = null;
+
   createBoardGrid();
   createCoordinates();
   setupInitialPosition();
