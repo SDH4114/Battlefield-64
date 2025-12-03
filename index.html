@@ -12,14 +12,14 @@
 </head>
 <body>
   <div class="container">
-    <!-- Logo Section -->
+    <!-- логотип -->
     <div class="logo-section">
       <img src="logoV2.png" alt="Battlefield 64 Logo" class="logo-img" onerror="this.style.display='none'">
       <h1 class="logo-text">Battlefield 64</h1>
       <p class="tagline">Strategic Chess Combat</p>
     </div>
 
-    <!-- Main Menu -->
+    <!-- меню -->
     <div class="main-menu">
       <div class="menu-buttons">
         <button class="menu-btn primary" onclick="location.href='chess.html'">
@@ -47,7 +47,7 @@
         </button>
       </div>
 
-      <!-- Settings -->
+      <!-- настройки -->
       <div class="settings-section">
         <h2 class="settings-title">Settings</h2>
         
@@ -99,14 +99,14 @@
           <a href="https://t.me/BreakLoop" class="social-link" title="BreakLoop">BreakLoop</a>
         </div>
         <p>© 2025 Battlefield 64. All rights reserved.</p>
-        <p>Version 1.0.4 Beta</p>
+        <p>Version 1.0.6</p>
 
       </div>
     </div>
   </div>
 
   <script>
-    // Загрузка настроек из localStorage
+    // загрузка настроек из localStorage
     function loadSettings() {
       const sound = localStorage.getItem('sound') !== 'false';
       const hints = localStorage.getItem('hints') !== 'false';
@@ -114,7 +114,7 @@
       const difficulty = localStorage.getItem('difficulty') || 'medium';
       const theme = localStorage.getItem('theme') || 'classic';
 
-      // Применяем сохраненные настройки
+      // применяем сохраненные настройки
       document.querySelectorAll('.toggle-switch')[0].classList.toggle('active', sound);
       document.querySelectorAll('.toggle-switch')[1].classList.toggle('active', hints);
       document.querySelectorAll('.toggle-switch')[2].classList.toggle('active', animation);
@@ -122,24 +122,24 @@
       document.getElementById('theme').value = theme;
     }
 
-    // Переключение настроек
+    // переключение настроек
     function toggleSetting(element, setting) {
       element.classList.toggle('active');
       const isActive = element.classList.contains('active');
       localStorage.setItem(setting, isActive);
       
-      // Визуальная обратная связь
+      // визуальная обратная связь
       element.style.transform = 'scale(0.95)';
       setTimeout(() => {
         element.style.transform = 'scale(1)';
       }, 100);
     }
 
-    // Сохранение выбора из select
+    // сохранение выбора из select
     function saveSetting(setting, value) {
       localStorage.setItem(setting, value);
-      
-      // Визуальная обратная связь
+
+      // визуальная обратная связь
       const select = event.target;
       select.style.transform = 'scale(0.98)';
       setTimeout(() => {
@@ -147,20 +147,20 @@
       }, 100);
     }
 
-    // Загружаем настройки при загрузке страницы
+    // загружаем настройки при загрузке страницы
     window.addEventListener('DOMContentLoaded', loadSettings);
 
-    // Анимация появления кнопок
+    // анимация появления кнопок
     const buttons = document.querySelectorAll('.menu-btn');
     buttons.forEach((btn, index) => {
       btn.style.animation = `fadeInUp 0.6s ease-out ${0.1 * index}s both`;
     });
 
-    // Добавляем звуковые эффекты при наведении (опционально)
+    // добавляем звуковые эффекты при наведении (опционально)
     buttons.forEach(btn => {
       btn.addEventListener('mouseenter', () => {
         if (localStorage.getItem('sound') !== 'false') {
-          // Здесь можно добавить звук hover
+          // может быть звук добавлю
           // new Audio('hover.mp3').play();
         }
       });

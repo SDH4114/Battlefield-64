@@ -1,14 +1,6 @@
-// =======================
-// Battlefield 64 - sys.js
-// =======================
-// Системные вещи сайта:
-// - переход на страницу репорта
-// - возврат назад в игру
-// - текст "Sending..." при отправке формы
-// НИКАКОГО fetch / AJAX, чтобы FormSubmit принимал файлы.
 
 document.addEventListener("DOMContentLoaded", () => {
-  // ----- Кнопка "Report Bug" на главной странице с шахматами -----
+  //  кнопка "Report Bug" на главной странице с шахматами
   const reportBtn = document.getElementById("report-bug-btn");
   if (reportBtn) {
     reportBtn.addEventListener("click", () => {
@@ -16,7 +8,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // ----- Кнопка "Back to game" на странице репорта -----
+  //  кнопка "Back to game" на странице репорта
   const backBtn = document.getElementById("back-to-game-btn");
   if (backBtn) {
     backBtn.addEventListener("click", (e) => {
@@ -25,14 +17,12 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // ----- Обработка формы репорта (БЕЗ AJAX) -----
+  //  обработка формы репорта
   const form = document.getElementById("bug-report-form");
   const statusEl = document.getElementById("status");
 
   if (form && statusEl) {
     form.addEventListener("submit", () => {
-      // Не делаем preventDefault!
-      // Просто даём FormSubmit выполнить обычный POST
       statusEl.textContent = "Sending...";
     });
   }

@@ -1,4 +1,3 @@
-/* Base reset (можно упростить, но пусть будет аккуратно) */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -19,7 +18,7 @@
   overflow: hidden;
 }
 
-/* Фоновые неоновые пятна */
+/* фоновые неоновые пятна */
 .about-glow {
   position: absolute;
   width: 480px;
@@ -40,7 +39,7 @@
   background: radial-gradient(circle, rgba(80, 200, 255, 0.55), transparent 60%);
 }
 
-/* HEADER */
+/* шляпа */
 
 .about-header {
   width: 100%;
@@ -101,7 +100,7 @@
   background: rgba(16, 22, 60, 0.9);
 }
 
-/* MAIN LAYOUT */
+/* главный слой */
 
 .about-main {
   width: 100%;
@@ -110,7 +109,7 @@
   z-index: 1;
 }
 
-/* HERO */
+/* герой пешки */
 
 .about-hero {
   text-align: left;
@@ -142,7 +141,7 @@
   color: #ffd2ff;
 }
 
-/* GRID SECTIONS */
+/* доска */
 
 .about-section {
   margin-bottom: 26px;
@@ -160,7 +159,7 @@
   }
 }
 
-/* CARD */
+/* карты */
 
 .about-card {
   background: radial-gradient(circle at top left, rgba(255, 121, 198, 0.18), rgba(11, 16, 43, 0.96));
@@ -187,7 +186,7 @@
   margin-bottom: 6px;
 }
 
-/* BOTTOM SECTION */
+/* нижний раздел */
 
 .about-section--bottom {
   text-align: center;

@@ -1,17 +1,16 @@
-/* ==== GLOBAL RESET ==== */
 * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
 }
 
-/* ==== THEME VARIABLES ==== */
+/*  темы  */
 :root {
   /* Чуть уменьшенный максимум, лучше встаёт с сайдбаром */
   --board-size: min(72vmin, 960px);
 }
 
-/* ==== BODY / PAGE BACKGROUND (NGNL VIBE) ==== */
+/*  задний фон  */
 body {
   background: radial-gradient(circle at top, #2b1b4b 0, #060818 55%, #020308 100%);
   color: #f5f5ff;
@@ -25,7 +24,7 @@ body {
   overflow-x: hidden;
 }
 
-/* Неоновые пятна как на About */
+/* неоновые пятна как на About */
 body::before,
 body::after {
   content: "";
@@ -57,7 +56,7 @@ body::after {
   z-index: 1;
 }
 
-/* ==== HEADER ==== */
+/* шляпа */
 
 .top-bar {
   display: flex;
@@ -81,7 +80,7 @@ body::after {
   text-shadow: 0 0 10px rgba(255, 121, 198, 0.7);
 }
 
-/* Общий неоновый стиль текста, похожий на логотип */
+/* общий неоновый стиль текста */
 .neon-text,
 .coords-row,
 .coords-col,
@@ -96,25 +95,25 @@ body::after {
   color: transparent;
   text-shadow: 0 0 8px rgba(255, 121, 198, 0.6);
 }
-/* === GLOBAL NEON TEXT STYLE (как на изображении) === */
+/*  общий неоновый стиль текста */
 .neon-text {
   font-weight: 900;
   font-family: "Courier New", monospace;
   text-transform: uppercase;
 
-  /* Градиент как в образце (голубой → розовый → фиолетовый) */
+  /* градиент как в образце  */
   background: linear-gradient(90deg, #a8e0ff, #f3b2ff, #f5a8ff);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
 
-  /* Мягкое цветное свечение */
+  /* мягкое цветное свечение */
   text-shadow:
     0 0 8px rgba(168, 224, 255, 0.6),
     0 0 18px rgba(243, 178, 255, 0.5),
     0 0 26px rgba(245, 168, 255, 0.4);
 }
-/* === Основной стиль текста Battlefield 64 === */
+/*  основной стиль текста  */
 .neon-rounded-text {
   font-family: "Courier New", monospace;
   font-weight: 900;
@@ -132,7 +131,8 @@ body::after {
     0 0 28px rgba(160, 120, 255, 0.25);
 }
 
-.controls button {
+.top-bar .controls button,
+.top-bar .controls a {
   background: rgba(10, 16, 44, 0.9);
   color: #f5f5ff;
   border: 1px solid rgba(171, 216, 255, 0.7);
@@ -149,15 +149,20 @@ body::after {
     background 0.15s ease,
     box-shadow 0.15s ease,
     transform 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
 }
 
-.controls button:hover {
+.top-bar .controls button:hover,
+.top-bar .controls a:hover {
   background: rgba(16, 22, 60, 0.95);
   box-shadow: 0 0 18px rgba(104, 200, 255, 0.75);
   transform: translateY(-1px);
 }
 
-/* ==== MAIN LAYOUT ==== */
+/*  основной макет  */
 
 .main-layout {
   display: grid;
@@ -167,7 +172,7 @@ body::after {
   justify-content: center;
 }
 
-/* ==== BOARD LAYOUT ==== */
+/*  доска  */
 
 #board {
   display: flex;
@@ -177,7 +182,7 @@ body::after {
   position: relative;
 }
 
-/* Баннер победы */
+/* баннер победы */
 #winner-banner {
   position: absolute;
   top: 45%;
@@ -195,7 +200,7 @@ body::after {
   z-index: 10;
 }
 
-/* Верх/низ (A–H) */
+/* верх/низ (A–H) */
 .coords-row {
   width: var(--board-size);
   height: clamp(30px, calc(var(--board-size) / 12), 56px);
@@ -209,7 +214,7 @@ body::after {
   user-select: none;
 }
 
-/* Центр: колонка слева, доска, колонка справа */
+/* центр: колонка слева, доска, колонка справа */
 #board-middle {
   display: flex;
   align-items: center;
@@ -217,7 +222,7 @@ body::after {
   gap: 4px;
 }
 
-/* Лево/право (1–8) */
+/* лево/право (1–8) */
 .coords-col {
   width: 32px;
   height: var(--board-size);
@@ -231,7 +236,7 @@ body::after {
   user-select: none;
 }
 
-/* Внутренняя 8×8 доска */
+/* внутренняя 8×8 доска */
 #board-grid {
   width: var(--board-size);
   height: var(--board-size);
@@ -247,12 +252,12 @@ body::after {
     0 0 24px rgba(119, 185, 255, 0.35);
 }
 
-/* Клетки */
+/* клетки */
 .square {
   position: relative;
 }
 
-/* Цвета клеток: твои значения */
+/* цвета клеток */
 .square.light {
   background-color: rgb(231, 241, 253); /* светлая */
 }
@@ -261,7 +266,7 @@ body::after {
   background-color: rgb(212, 227, 250); /* тёмная */
 }
 
-/* Подсказка доступного хода – точка */
+/* подсказка доступного хода – точка */
 .square.move-hint::after {
   content: "";
   position: absolute;
@@ -273,20 +278,40 @@ body::after {
   background-color: rgba(60, 90, 160, 0.55);
   border-radius: 50%;
   pointer-events: none;
-  z-index: 0;
+  z-index: 1;
 }
 
-/* Клетка с королём под шахом – красное подсвечивание */
+/* кружок на клетке, где можно взять фигуру соперника */
+.square.capture-hint::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 22%;
+  height: 22%;
+  transform: translate(-50%, -50%);
+  background-color: rgba(255, 120, 150, 0.95);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* королём под шахом клетка*/
 .square.in-check::before {
   content: "";
   position: absolute;
-  inset: 0;
-  background-color: rgba(231, 76, 60, 0.35); /* мягкий красный */
+  top: 50%;
+  left: 50%;
+  width: 22%;
+  height: 22%;
+  transform: translate(-50%, -50%);
+  background-color: rgba(255, 60, 60, 0.9);
+  border-radius: 50%;
   pointer-events: none;
-  z-index: 0;
+  z-index: 3;
 }
 
-/* Фигуры */
+/* фигуры */
 .piece {
   position: absolute;
   top: 50%;
@@ -300,7 +325,7 @@ body::after {
   z-index: 1;
 }
 
-/* Выбранная фигура – приподнята и покачивается */
+/* выбранная фигура */
 .piece.selected {
   animation: pieceWiggle 0.8s ease-in-out infinite;
   filter:
@@ -308,7 +333,7 @@ body::after {
     drop-shadow(0 0 14px rgba(241, 196, 15, 0.6));
 }
 
-/* Анимация "взял фигуру в руку" */
+/* аним "взял фигуру в руку" */
 @keyframes pieceWiggle {
   0%   { transform: translate(-50%, calc(-50% - 6px)) rotate(0deg)   scale(1.05); }
   25%  { transform: translate(-50%, calc(-50% - 6px)) rotate(-3deg)  scale(1.05); }
@@ -317,7 +342,7 @@ body::after {
   100% { transform: translate(-50%, calc(-50% - 6px)) rotate(0deg)   scale(1.05); }
 }
 
-/* ==== SIDEBAR (Moves / Info) ==== */
+/* туда сюда */
 
 .sidebar {
   background: radial-gradient(circle at top left, rgba(255, 121, 198, 0.18), rgba(11, 16, 43, 0.96));
@@ -357,16 +382,16 @@ body::after {
   color: #ffd2ff;
 }
 
-/* Лог ходов */
+/* лог ходов */
 #moves-log {
   padding-left: 18px;
-  max-height: 50vh;        /* адаптивная высота — не вылезает за экран */
+  max-height: 50vh;
   overflow-y: auto;
   font-size: 13px;
   color: #c8d6ff;
 }
 
-/* чуть-чуть прокрутка по-геймёрски :) */
+/* чуть-чуть прокрутка */
 #moves-log::-webkit-scrollbar {
   width: 6px;
 }
@@ -377,6 +402,8 @@ body::after {
   background: linear-gradient(180deg, #ff79c6, #8be9fd);
   border-radius: 999px;
 }
+
+/* report bug page */
 .bug-report-section {
   max-width: 640px;
   margin: 0 auto;
@@ -421,7 +448,8 @@ body::after {
 .primary-btn:hover {
   opacity: 0.9;
 }
-/* ===== PAWN PROMOTION MODAL ===== */
+
+/*  пешка в другую фигуру  */
 .promotion-modal {
   position: fixed;
   inset: 0;
@@ -485,7 +513,6 @@ body::after {
   box-shadow: 0 0 6px rgba(255, 120, 255, 0.6);
 }
 
-/* если нет .hidden — добавь */
 .hidden {
   display: none !important;
 }

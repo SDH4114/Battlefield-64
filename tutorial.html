@@ -8,14 +8,13 @@
   <link rel="shortcut icon" type="image/png" href="./logoBrow.png" />
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <style>
-    /* ==== GLOBAL RESET ==== */
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
     }
 
-    /* ==== BODY / PAGE BACKGROUND (NGNL VIBE) ==== */
+    /*  задний фон  */
     body {
       background: radial-gradient(circle at top, #2b1b4b 0, #060818 55%, #020308 100%);
       color: #f5f5ff;
@@ -26,7 +25,7 @@
       overflow-x: hidden;
     }
 
-    /* Неоновые пятна */
+    /* неоновые пятна */
     body::before,
     body::after {
       content: "";
@@ -58,7 +57,7 @@
       z-index: 1;
     }
 
-    /* ==== HEADER ==== */
+    /*  шляпа  */
     .top-bar {
       display: flex;
       justify-content: space-between;
@@ -101,7 +100,7 @@
       transform: translateY(-1px);
     }
 
-    /* ==== MAIN CONTENT ==== */
+    /*  главное  */
     .content-wrapper {
       background: rgba(10, 12, 40, 0.85);
       border-radius: 18px;
@@ -228,7 +227,7 @@
       color: #ff9cf5;
     }
 
-    /* Responsive */
+    /* адаптивность */
     @media (max-width: 768px) {
       .content-wrapper {
         padding: 24px 20px;
