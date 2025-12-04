@@ -15,7 +15,7 @@
     align-items: center;
     padding: 20px;
     position: relative;
-    overflow: hidden;   /* убивает скролл */
+    overflow: over;   /* убивает скролл */
     }
     /* неоновые пятна */
     body::before,
