@@ -8,6 +8,35 @@
 :root {
   /* Чуть уменьшенный максимум, лучше встаёт с сайдбаром */
   --board-size: min(72vmin, 960px);
+  --square-light: rgb(231, 241, 253);
+  --square-dark: rgb(212, 227, 250);
+  --move-hint: rgba(60, 90, 160, 0.55);
+  --capture-hint: rgba(255, 120, 150, 0.95);
+  --check-hint: rgba(255, 60, 60, 0.9);
+}
+
+body.theme-basic {
+  --square-light: rgb(231, 241, 253);
+  --square-dark: rgb(212, 227, 250);
+  --move-hint: rgba(60, 90, 160, 0.55);
+  --capture-hint: rgba(255, 120, 150, 0.95);
+  --check-hint: rgba(255, 60, 60, 0.9);
+}
+
+body.theme-classic {
+  --square-light: rgb(231, 241, 253);
+  --square-dark: rgb(212, 227, 250);
+  --move-hint: rgba(60, 90, 160, 0.55);
+  --capture-hint: rgba(255, 120, 150, 0.95);
+  --check-hint: rgba(255, 60, 60, 0.9);
+}
+
+body.theme-universal {
+  --square-light: rgb(231, 241, 253);
+  --square-dark: rgb(212, 227, 250);
+  --move-hint: rgba(60, 90, 160, 0.55);
+  --capture-hint: rgba(255, 120, 150, 0.95);
+  --check-hint: rgba(255, 60, 60, 0.9);
 }
 
 /*  задний фон  */
@@ -259,11 +288,11 @@ body::after {
 
 /* цвета клеток */
 .square.light {
-  background-color: rgb(231, 241, 253); /* светлая */
+  background-color: var(--square-light);
 }
 
 .square.dark {
-  background-color: rgb(212, 227, 250); /* тёмная */
+  background-color: var(--square-dark);
 }
 
 /* подсказка доступного хода – точка */
@@ -275,7 +304,7 @@ body::after {
   width: 22%;
   height: 22%;
   transform: translate(-50%, -50%);
-  background-color: rgba(60, 90, 160, 0.55);
+  background-color: var(--move-hint);
   border-radius: 50%;
   pointer-events: none;
   z-index: 1;
@@ -290,7 +319,7 @@ body::after {
   width: 22%;
   height: 22%;
   transform: translate(-50%, -50%);
-  background-color: rgba(255, 120, 150, 0.95);
+  background-color: var(--capture-hint);
   border-radius: 50%;
   pointer-events: none;
   z-index: 2;
@@ -305,7 +334,7 @@ body::after {
   width: 22%;
   height: 22%;
   transform: translate(-50%, -50%);
-  background-color: rgba(255, 60, 60, 0.9);
+  background-color: var(--check-hint);
   border-radius: 50%;
   pointer-events: none;
   z-index: 3;
@@ -328,6 +357,12 @@ body::after {
 /* выбранная фигура */
 .piece.selected {
   animation: pieceWiggle 0.8s ease-in-out infinite;
+  filter:
+    drop-shadow(0 0 6px rgba(241, 196, 15, 0.9))
+    drop-shadow(0 0 14px rgba(241, 196, 15, 0.6));
+}
+
+.piece.selected-static {
   filter:
     drop-shadow(0 0 6px rgba(241, 196, 15, 0.9))
     drop-shadow(0 0 14px rgba(241, 196, 15, 0.6));

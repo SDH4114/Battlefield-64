@@ -25,6 +25,9 @@
         <button class="menu-btn primary" onclick="location.href='chess.html'">
           <span>Start Game</span>
         </button>
+        <button class="menu-btn primary" id="play-bot-btn">
+          <span>Play with bot</span>
+        </button>
         
         <button class="menu-btn" onclick="location.href='tutorial.html'">
           <span>Rules & Tutorial</span>
@@ -52,7 +55,7 @@
         <h2 class="settings-title">Settings</h2>
         
         <div class="setting-item">
-          <span class="setting-label">Sound effects</span>
+          <span class="setting-label">Sound effects (в разработке)</span>
           <div class="toggle-switch active" onclick="toggleSetting(this, 'sound')"></div>
         </div>
         
@@ -82,10 +85,9 @@
           <span class="setting-label">Piece style</span>
           <div class="select-wrapper">
             <select class="custom-select" id="theme" onchange="saveSetting('theme', this.value)">
-              <option value="classic" selected>Classic</option>
-              <option value="neon">Neon</option>
-              <option value="wood">Wood</option>
-              <option value="marble">Marble</option>
+              <option value="basic" selected>Basic (cyan/pink)</option>
+              <option value="classic">Classic (black/white)</option>
+              <option value="universal" disabled>Universal (в разработке)</option>
             </select>
           </div>
         </div>
@@ -112,7 +114,11 @@
       const hints = localStorage.getItem('hints') !== 'false';
       const animation = localStorage.getItem('animation') !== 'false';
       const difficulty = localStorage.getItem('difficulty') || 'medium';
-      const theme = localStorage.getItem('theme') || 'classic';
+      const storedTheme = localStorage.getItem('theme');
+      const theme = storedTheme && ['basic','classic'].includes(storedTheme) ? storedTheme : 'basic';
+      if (theme !== storedTheme) {
+        localStorage.setItem('theme', theme);
+      }
 
       // применяем сохраненные настройки
       document.querySelectorAll('.toggle-switch')[0].classList.toggle('active', sound);
@@ -165,6 +171,16 @@
         }
       });
     });
+
+    // игра против бота с выбранной сложностью
+    const playBotBtn = document.getElementById('play-bot-btn');
+    if (playBotBtn) {
+      playBotBtn.addEventListener('click', () => {
+        const difficulty = document.getElementById('difficulty')?.value || 'medium';
+        localStorage.setItem('difficulty', difficulty);
+        window.location.href = 'botChess.html';
+      });
+    }
   </script>
 </body>
 </html>

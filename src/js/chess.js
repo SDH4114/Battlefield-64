@@ -6,6 +6,8 @@ const movesLogEl = document.getElementById("moves-log");
 const currentTurnEl = document.getElementById("current-turn");
 const newGameBtn = document.getElementById("new-game");
 
+const gameSettings = loadGameSettings();
+
 let selectedSquare = null;
 let selectedPiece = null;
 let currentTurn = "pink"; // первым ходит pink
@@ -19,9 +21,47 @@ let castlingRights = {
 
 let promotionResolve = null; // выбор промоции
 
+function loadGameSettings() {
+  const storedTheme = localStorage.getItem("theme");
+  const theme =
+    storedTheme && ["basic", "classic"].includes(storedTheme)
+      ? storedTheme
+      : "basic";
+  if (theme !== storedTheme) {
+    localStorage.setItem("theme", theme);
+  }
+  return {
+    sound: localStorage.getItem("sound") !== "false",
+    hints: localStorage.getItem("hints") !== "false",
+    animation: localStorage.getItem("animation") !== "false",
+    theme,
+  };
+}
+
 // путь к спрайтам
 function getPieceSrc(color, type) {
+  const theme = gameSettings.theme || "basic";
+
+  if (theme === "classic") {
+    const mappedColor = color === "pink" ? "white" : "black";
+    return `./pieces/classic/${mappedColor}/${type}.png`;
+  }
+
+  if (theme === "universal") {
+    const mappedColor = color === "pink" ? "purple" : "yellow";
+    return `./pieces/game is life/${mappedColor}/${type}.png`;
+  }
+
+  // basic
   return `./pieces/game is life/${color}/${type}.png`;
+}
+
+function applyThemeSetting() {
+  const body = document.body;
+  ["theme-basic", "theme-classic", "theme-universal"].forEach((cls) =>
+    body.classList.remove(cls)
+  );
+  body.classList.add(`theme-${gameSettings.theme}`);
 }
 
 // баннер победы
@@ -352,6 +392,11 @@ function clearMoveHints() {
 function showMoveHints(moves) {
   clearMoveHints();
 
+  currentLegalMoves = moves;
+  if (!gameSettings.hints) {
+    return;
+  }
+
   const movingColor = selectedPiece ? selectedPiece.dataset.color : null;
 
   moves.forEach(({ row, col }) => {
@@ -374,7 +419,6 @@ function showMoveHints(moves) {
     }
   });
 
-  currentLegalMoves = moves;
 }
 
 // шах и мат
@@ -673,6 +717,9 @@ function clearSelections() {
   document.querySelectorAll(".piece.selected").forEach((p) => {
     p.classList.remove("selected");
   });
+  document.querySelectorAll(".piece.selected-static").forEach((p) => {
+    p.classList.remove("selected-static");
+  });
   clearMoveHints();
 }
 
@@ -688,7 +735,11 @@ function onSquareClick(e) {
     clearSelections();
     selectedPiece = piece;
     selectedSquare = square;
-    piece.classList.add("selected");
+    if (gameSettings.animation) {
+      piece.classList.add("selected");
+    } else {
+      piece.classList.add("selected-static");
+    }
 
     const moves = getLegalMovesForPiece(square, piece);
     showMoveHints(moves);
@@ -710,7 +761,11 @@ function onSquareClick(e) {
     clearSelections();
     selectedPiece = targetPiece;
     selectedSquare = square;
-    targetPiece.classList.add("selected");
+    if (gameSettings.animation) {
+      targetPiece.classList.add("selected");
+    } else {
+      targetPiece.classList.add("selected-static");
+    }
 
     const moves = getLegalMovesForPiece(square, targetPiece);
     showMoveHints(moves);
@@ -871,6 +926,7 @@ function initGame() {
   }
   promotionResolve = null;
 
+  applyThemeSetting();
   createBoardGrid();
   createCoordinates();
   setupInitialPosition();

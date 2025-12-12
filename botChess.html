@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Battlefield 64 — Bot Match</title>
+
+  <link rel="stylesheet" href="./src/css/style.css" />
+  <link rel="icon" type="image/png" sizes="512x512" href="./logoBrow.png" />
+  <link rel="shortcut icon" type="image/png" href="./logoBrow.png" />
+  <meta name="viewport"
+        content="width=device-width, initial-scale=0.9, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+
+  <link href="https://fonts.googleapis.com/css2?family=Varela+Round&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="page">
+    <header class="top-bar">
+      <div class="logo">
+        <img src="logoV2.png"
+             alt="Logo"
+             style="height:36px; margin-right:-8px; vertical-align:middle;">
+        Battlefield 64 — Bot
+      </div>
+
+      <div class="controls">
+        <a href="index.html" class="top-btn" id="index-link">Main</a>
+        <a href="tutorial.html" class="top-btn" id="tutorial-link">Tutorial</a>
+        <button id="new-game" class="top-btn">New Game</button>
+        <a href="report.html" class="top-btn" id="report-bug-btn">Report Bug</a>
+      </div>
+    </header>
+
+    <main class="main-layout">
+      <div id="board">
+        <div id="winner-banner"></div>
+        <div id="board-top" class="coords-row"></div>
+
+        <div id="board-middle">
+          <div id="board-left" class="coords-col"></div>
+          <div id="board-grid"></div>
+          <div id="board-right" class="coords-col"></div>
+        </div>
+
+        <div id="board-bottom" class="coords-row"></div>
+      </div>
+
+      <!-- изменение пешки -->
+      <div id="promotion-modal" class="promotion-modal hidden">
+        <div class="promotion-dialog">
+          <p class="promotion-title">Choose promotion piece</p>
+          <div class="promotion-buttons">
+            <button type="button" data-piece="queen">Queen</button>
+            <button type="button" data-piece="tower">Rook</button>
+            <button type="button" data-piece="elephant">Bishop</button>
+            <button type="button" data-piece="hourse">Knight</button>
+          </div>
+        </div>
+      </div>
+
+      <aside class="sidebar">
+        <h2>Info</h2>
+        <p><strong>Current turn:</strong> <span id="current-turn">pink</span></p>
+        <p><strong>Bot difficulty:</strong> <span id="bot-difficulty">medium</span></p>
+
+        <h3>Moves</h3>
+        <ol id="moves-log"></ol>
+      </aside>
+    </main>
+  </div>
+
+  <script src="./src/js/bot.js" defer></script>
+  <script src="./src/js/sys.js" defer></script>
+</body>
+</html>
