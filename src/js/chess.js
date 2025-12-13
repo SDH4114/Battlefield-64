@@ -8,6 +8,13 @@ const newGameBtn = document.getElementById("new-game");
 
 const gameSettings = loadGameSettings();
 
+function getDisplayColor(color) {
+  if (gameSettings.theme === "classic") {
+    return color === "pink" ? "White" : "Black";
+  }
+  return color === "pink" ? "Pink" : "Cyan";
+}
+
 let selectedSquare = null;
 let selectedPiece = null;
 let currentTurn = "pink"; // первым ходит pink
@@ -75,7 +82,7 @@ function hideWinnerBanner() {
 function showWinnerBanner(winnerColor) {
   const banner = document.getElementById("winner-banner");
   if (!banner) return;
-  banner.textContent = `${winnerColor.toUpperCase()} WINS!`;
+  banner.textContent = winnerColor;
   banner.style.display = "block";
 }
 
@@ -204,9 +211,7 @@ function getPieceName(type) {
 }
 
 function formatColorLabel(color) {
-  if (color === "pink") return "Pink";
-  if (color === "cyan") return "Cyan";
-  return color;
+  return getDisplayColor(color);
 }
 
 function applyPromotion(piece, newType) {
@@ -409,7 +414,8 @@ function showMoveHints(moves) {
     if (
       targetPiece &&
       movingColor &&
-      targetPiece.dataset.color !== movingColor
+      targetPiece.dataset.color !== movingColor &&
+      targetPiece.dataset.type !== "king"
     ) {
       sq.classList.add("capture-hint");
       targetPiece.classList.add("capture-hint");
@@ -707,7 +713,8 @@ function updateCheckStatus() {
 
     const hasMoves = hasAnyLegalMove(board, colorToMove);
     if (!hasMoves) {
-      showWinnerBanner(colorToMove === "pink" ? "cyan" : "pink");
+      const winner = colorToMove === "pink" ? "cyan" : "pink";
+      showWinnerBanner(`${getDisplayColor(winner)} wins!`);
     }
   }
 }

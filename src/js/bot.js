@@ -21,6 +21,13 @@ const botNewGameBtn = document.getElementById("new-game");
 
 const botSettings = loadBotSettings();
 
+function botDisplayColor(color) {
+  if (botSettings.theme === "classic") {
+    return color === HUMAN_COLOR ? "White" : "Black";
+  }
+  return color === HUMAN_COLOR ? "Pink" : "Cyan";
+}
+
 // Состояние игры
 let botBoardState = [];
 let botCastlingRights = {
@@ -108,7 +115,7 @@ function botShowWinnerBanner(text) {
 }
 
 function botFormatColor(color) {
-  return color === "pink" ? "Pink" : "Cyan";
+  return botDisplayColor(color);
 }
 
 // Построение доски
@@ -303,7 +310,11 @@ function botShowMoveHints(moves, movingColor) {
     const sq = botGetSquare(toRow, toCol);
     if (!sq) return;
     const targetPiece = botBoardState[toRow][toCol];
-    if (targetPiece && targetPiece.color !== movingColor) {
+    if (
+      targetPiece &&
+      targetPiece.color !== movingColor &&
+      targetPiece.type !== "king"
+    ) {
       sq.classList.add("capture-hint");
       const targetImg = sq.querySelector(".piece");
       if (targetImg) targetImg.classList.add("capture-hint");
@@ -616,6 +627,7 @@ function botUpdateCheckStatus() {
 }
 
 function botCheckEndGame() {
+  botClearCheckHighlight();
   const legal = botGenerateAllMoves(botBoardState, botCurrentTurn, botCastlingRights);
   const inCheck = botIsKingInCheck(botBoardState, botCurrentTurn, botCastlingRights);
 
@@ -631,7 +643,9 @@ function botCheckEndGame() {
     return true;
   }
 
-  botHighlightCheck(botBoardState, botCurrentTurn);
+  if (inCheck) {
+    botHighlightCheck(botBoardState, botCurrentTurn);
+  }
   return false;
 }
 

@@ -329,13 +329,8 @@ body::after {
 .square.in-check::before {
   content: "";
   position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 22%;
-  height: 22%;
-  transform: translate(-50%, -50%);
-  background-color: var(--check-hint);
-  border-radius: 50%;
+  inset: 0;
+  background: radial-gradient(circle at center, rgba(255, 60, 60, 0.38), rgba(255, 60, 60, 0.2));
   pointer-events: none;
   z-index: 3;
 }
