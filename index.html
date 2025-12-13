@@ -74,9 +74,10 @@
           <div class="select-wrapper">
             <select class="custom-select" id="difficulty" onchange="saveSetting('difficulty', this.value)">
               <option value="easy">Easy</option>
-              <option value="medium" selected>Medium</option>
+              <option value="normal" selected>Normal</option>
               <option value="hard">Hard</option>
               <option value="expert">Expert</option>
+              <option value="master">Master</option>
             </select>
           </div>
         </div>
@@ -110,10 +111,30 @@
   <script>
     // загрузка настроек из localStorage
     function loadSettings() {
+      // сложность бота (не Elo): easy/normal/hard/expert/master
+      const difficultyOptions = ['easy','normal','hard','expert','master'];
+      const storedDifficulty = localStorage.getItem('difficulty');
+      const difficulty = difficultyOptions.includes(storedDifficulty) ? storedDifficulty : 'normal';
+
+      // миграция со старых числовых значений на новые уровни
+      const legacyMap = {
+        '350': 'easy',
+        '800': 'normal',
+        '1350': 'hard',
+        '1850': 'expert',
+        '2850': 'master'
+      };
+      const migrated = legacyMap[storedDifficulty];
+      const finalDifficulty = migrated || difficulty;
+
+      if (finalDifficulty !== storedDifficulty) {
+        localStorage.setItem('difficulty', finalDifficulty);
+      }
+
       const sound = localStorage.getItem('sound') !== 'false';
       const hints = localStorage.getItem('hints') !== 'false';
       const animation = localStorage.getItem('animation') !== 'false';
-      const difficulty = localStorage.getItem('difficulty') || 'medium';
+
       const storedTheme = localStorage.getItem('theme');
       const theme = storedTheme && ['basic','classic'].includes(storedTheme) ? storedTheme : 'basic';
       if (theme !== storedTheme) {
@@ -124,7 +145,7 @@
       document.querySelectorAll('.toggle-switch')[0].classList.toggle('active', sound);
       document.querySelectorAll('.toggle-switch')[1].classList.toggle('active', hints);
       document.querySelectorAll('.toggle-switch')[2].classList.toggle('active', animation);
-      document.getElementById('difficulty').value = difficulty;
+      document.getElementById('difficulty').value = finalDifficulty;
       document.getElementById('theme').value = theme;
     }
 
@@ -176,7 +197,7 @@
     const playBotBtn = document.getElementById('play-bot-btn');
     if (playBotBtn) {
       playBotBtn.addEventListener('click', () => {
-        const difficulty = document.getElementById('difficulty')?.value || 'medium';
+        const difficulty = document.getElementById('difficulty')?.value || 'normal';
         localStorage.setItem('difficulty', difficulty);
         window.location.href = 'botChess.html';
       });

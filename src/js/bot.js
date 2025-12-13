@@ -44,16 +44,38 @@ let isBotThinking = false;
 let botGameOver = false;
 
 // Уровень сложности
-const savedDifficulty = localStorage.getItem("difficulty") || "medium";
-const difficultyToDepth = {
-  easy: 0,
-  medium: 1,
-  hard: 2,
-  expert: 3,
+// Важно: это НЕ Elo. Это честные уровни поведения бота.
+// Храним в localStorage строковые значения: easy/normal/hard/expert/master.
+const difficultyOptions = ["easy", "normal", "hard", "expert", "master"];
+const storedDifficulty = localStorage.getItem("difficulty");
+const savedDifficulty = difficultyOptions.includes(storedDifficulty)
+  ? storedDifficulty
+  : "normal";
+
+// Настройки уровня: глубина поиска + шанс сыграть не лучший ход
+const difficultyConfig = {
+  easy:   { depth: 0, mistakeChance: 0.35 }, // часто случайные/слабые ходы
+  normal: { depth: 1, mistakeChance: 0.18 },
+  hard:   { depth: 2, mistakeChance: 0.08 },
+  expert: { depth: 3, mistakeChance: 0.03 },
+  master: { depth: 4, mistakeChance: 0.01 },
 };
-const botSearchDepth = difficultyToDepth[savedDifficulty] ?? 1;
+
+const botSearchDepth = (difficultyConfig[savedDifficulty]?.depth ?? 1);
+
+function botDifficultyLabel(level) {
+  switch (level) {
+    case "easy": return "Easy";
+    case "normal": return "Normal";
+    case "hard": return "Hard";
+    case "expert": return "Expert";
+    case "master": return "Master";
+    default: return "Normal";
+  }
+}
+
 if (botDifficultyEl) {
-  botDifficultyEl.textContent = savedDifficulty;
+  botDifficultyEl.textContent = botDifficultyLabel(savedDifficulty);
 }
 
 // Хелперы
@@ -926,13 +948,21 @@ function botMinimax(board, rights, depth, isMaximizing, alpha, beta) {
 function botPickMoveByDifficulty(legalMoves) {
   if (legalMoves.length === 0) return null;
 
-  // easy: случайный
+  const cfg = difficultyConfig[savedDifficulty] || difficultyConfig.normal;
+
+  // Helper: выбрать случайный ход
+  const pickRandom = () => legalMoves[Math.floor(Math.random() * legalMoves.length)];
+
+  // Easy: почти всегда случайно
   if (savedDifficulty === "easy") {
-    return legalMoves[Math.floor(Math.random() * legalMoves.length)];
+    return pickRandom();
   }
 
-  // medium: лучший размен по ценности
-  if (savedDifficulty === "medium") {
+  // Normal: предпочитает взятия по цене, но иногда ошибается
+  if (savedDifficulty === "normal") {
+    // Иногда делаем случайный ход, чтобы уровень ощущался реалистично слабее
+    if (Math.random() < cfg.mistakeChance) return pickRandom();
+
     let best = legalMoves[0];
     let bestScore = -Infinity;
     for (const move of legalMoves) {
@@ -946,9 +976,9 @@ function botPickMoveByDifficulty(legalMoves) {
     return best;
   }
 
-  // hard / expert: минимакс
-  const depth = botSearchDepth;
-  const { move } = botMinimax(
+  // Hard/Expert/Master: минимакс с альфа-бета, но с редкими "человеческими" ошибками
+  const depth = cfg.depth;
+  const result = botMinimax(
     botBoardState,
     botCastlingRights,
     depth,
@@ -956,8 +986,33 @@ function botPickMoveByDifficulty(legalMoves) {
     -Infinity,
     Infinity
   );
-  if (move) return move;
-  return legalMoves[Math.floor(Math.random() * legalMoves.length)];
+
+  // Если минимакс ничего не вернул — fallback
+  if (!result || !result.move) return pickRandom();
+
+  // Mistake model: иногда выбираем не лучший ход (но не рандом полный)
+  if (Math.random() < cfg.mistakeChance) {
+    // Берём топ-N ходов по оценке и выбираем случайно из них
+    const scored = [];
+    for (const move of legalMoves) {
+      const { board: nextBoard, rights: nextRights } = botApplyMove(
+        botBoardState,
+        botCastlingRights,
+        move,
+        "queen"
+      );
+      const { score } = botMinimax(nextBoard, nextRights, Math.max(0, depth - 1), false, -Infinity, Infinity);
+      scored.push({ move, score });
+    }
+    scored.sort((a, b) => b.score - a.score);
+
+    // Чем выше уровень — тем уже выбор (меньше шансов на грубую ошибку)
+    const topN = savedDifficulty === "hard" ? 5 : savedDifficulty === "expert" ? 3 : 2;
+    const slice = scored.slice(0, Math.min(topN, scored.length));
+    return slice[Math.floor(Math.random() * slice.length)].move;
+  }
+
+  return result.move;
 }
 
 function botMakeBotMove() {
